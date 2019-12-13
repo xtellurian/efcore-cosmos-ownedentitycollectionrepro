@@ -16,7 +16,7 @@ This bug seems to manifest when there are nested collections of Owned Entities u
 
 0. Create a COSMOS Db account
 1. In [AppSettings](src/appsettings.Development.json) set the Endpoint, Key, and Database values.
-2. 1. Start the app with `dotnet run` or hit Debug in VS Code
+2. Start the app with `dotnet run` or hit Debug in VS Code
 3. EF Core will throw an error.
 
 ## Error Output
