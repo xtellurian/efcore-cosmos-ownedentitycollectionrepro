@@ -1,6 +1,6 @@
 namespace src.Model
 {
-    public class Device : IdentifiedThing
+    public class Device
     {
         public Device()
         {
@@ -9,7 +9,7 @@ namespace src.Model
         {
             Name = name;
         }
-
+        public string Id { get; set; }
         public string Name { get; set; }
     }
 }
