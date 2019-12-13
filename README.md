@@ -2,6 +2,8 @@
 
 This bug seems to manifest when there are nested collections of Owned Entities using the Cosmos DB provider with Lazy Loading.
 
+[EF Core Issue](https://github.com/aspnet/EntityFrameworkCore/issues/19299)
+
 ## Steps to Reproduce
 
 ### Normal Operation (In Memory DB)
