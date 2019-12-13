@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -31,11 +28,22 @@ namespace src
             var endpoint = Configuration["Endpoint"];
             var key = Configuration["Key"];
             var database = Configuration["Database"];
-            services.AddDbContext<MyContext>(options =>
+            if(string.IsNullOrEmpty(key))
+            {
+                 services.AddDbContext<MyContext>(options =>
+                 {
+                     options.UseInMemoryDatabase("InMemoryDb");
+                     options.UseLazyLoadingProxies();
+                 });
+            }
+            else
+            {
+                services.AddDbContext<MyContext>(options =>
                 {
                     options.UseCosmos(endpoint, key, database);
                     options.UseLazyLoadingProxies();
                 });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,18 +67,15 @@ namespace src
                 {
                     using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
                     using (var dbContext = scope.ServiceProvider.GetService<MyContext>())
-                    {
-                        var site = dbContext.Sites.FirstOrDefault();
-                        if(site == null)
-                        {
-                            site = new Site();
-                            var building = new Building();
-                            building.Rooms.Add(new Room("Living"));
-                            building.Devices.Add(new Device("Phone"));
-                            site.Buildings.Add(building);
-                            dbContext.Sites.Add(site);
-                            await dbContext.SaveChangesAsync();
-                        }
+                    {   
+                        var site = new Site();
+                        var building = new Building();
+                        building.Rooms.Add(new Room("Living"));
+                        building.Devices.Add(new Device("Phone"));
+                        site.Buildings.Add(building);
+                        dbContext.Sites.Add(site);
+                        await dbContext.SaveChangesAsync();
+                        
                         await context.Response.WriteAsync("Done");
                     }
                 });
@@ -79,8 +84,8 @@ namespace src
                     using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
                     using (var dbContext = scope.ServiceProvider.GetService<MyContext>())
                     {
-                        var site = dbContext.Sites.FirstOrDefault();
-                        var json = JsonConvert.SerializeObject(site);
+                        var sites = await dbContext.Sites.ToListAsync();
+                        var json = JsonConvert.SerializeObject(sites);
                         await context.Response.WriteAsync(json);
                     }
                 });
